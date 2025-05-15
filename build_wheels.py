@@ -296,11 +296,11 @@ def build_wheel(project_path, project_name=None, no_isolation=True):
                     arch_list = []
                     for line in result.stdout.strip().split('\n'):
                         if line.strip():
-                            major, minor = line.strip().split('.')
-                            arch_list.append(f"{major}.{minor}")
+                            arch_list.append(line.strip())
                     
                     if arch_list:
-                        arch_string = ';'.join([f"compute_{arch.replace('.', '')},sm_{arch.replace('.', '')}" for arch in arch_list])
+                        # Just use the version numbers separated by semicolons
+                        arch_string = ';'.join(arch_list)
                         print(f"Detected CUDA architectures: {arch_string}")
                         env["TORCH_CUDA_ARCH_LIST"] = arch_string
                     else:
