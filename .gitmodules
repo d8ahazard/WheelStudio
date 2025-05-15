@@ -28,7 +28,7 @@
 
 [submodule "stable-audio-tool"]
 	path = stable-audio-tool
-	url = https://github.com/d8ahazard/stable-audio-tool
+	url = https://github.com/d8ahazard/stable-audio-tools
 
 [submodule "versatile_audio_super_resolution"]
 	path = versatile_audio_super_resolution
