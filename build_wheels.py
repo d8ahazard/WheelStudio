@@ -284,7 +284,37 @@ def build_wheel(project_path, project_name=None, no_isolation=True):
             print("CUDA detected. Building fairseq with CUDA support...")
             
             # Set environment variable to build with CUDA
-            env["TORCH_CUDA_ARCH_LIST"] = "all"
+            if platform.system() == "Linux":
+                # On Linux, detect the actual architectures instead of using "all"
+                try:
+                    # Use nvidia-smi to get GPU info
+                    result = subprocess.run(
+                        ["nvidia-smi", "--query-gpu=compute_cap", "--format=csv,noheader"],
+                        capture_output=True, text=True, check=True
+                    )
+                    # Parse compute capabilities and format as required by PyTorch
+                    arch_list = []
+                    for line in result.stdout.strip().split('\n'):
+                        if line.strip():
+                            major, minor = line.strip().split('.')
+                            arch_list.append(f"{major}.{minor}")
+                    
+                    if arch_list:
+                        arch_string = ';'.join([f"compute_{arch.replace('.', '')},sm_{arch.replace('.', '')}" for arch in arch_list])
+                        print(f"Detected CUDA architectures: {arch_string}")
+                        env["TORCH_CUDA_ARCH_LIST"] = arch_string
+                    else:
+                        # Fallback to common architectures if detection fails
+                        print("Could not detect specific CUDA architectures. Using common ones.")
+                        env["TORCH_CUDA_ARCH_LIST"] = "3.5;5.0;6.0;6.1;7.0;7.5;8.0;8.6"
+                except Exception as e:
+                    print(f"Error detecting CUDA architectures: {e}")
+                    print("Falling back to common CUDA architectures")
+                    env["TORCH_CUDA_ARCH_LIST"] = "3.5;5.0;6.0;6.1;7.0;7.5;8.0;8.6"
+            else:
+                # On Windows and other platforms, using "all" works fine
+                env["TORCH_CUDA_ARCH_LIST"] = "all"
+                
             env["FORCE_CUDA"] = "1"
             
         # Special case for CLAP to ensure version 1.1.5
