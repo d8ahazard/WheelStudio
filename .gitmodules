@@ -1,4 +1,4 @@
-[submodule "coqui-ai-TTS_sub"]
+[submodule "coqui-ai-TTS"]
 	path = coqui-ai-TTS
 	url = https://github.com/d8ahazard/coqui-ai-TTS
 
@@ -7,7 +7,7 @@
 	url = https://github.com/d8ahazard/causal-conv1d
 
 [submodule "CLAP"]
-	path = "CLAP"
+	path = CLAP
 	url = https://github.com/d8ahazard/CLAP
 
 [submodule "dctorch"]

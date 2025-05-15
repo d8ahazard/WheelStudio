@@ -134,7 +134,7 @@ def add_missing_submodules():
                     
                     # Add the repository as a submodule
                     print(f"Adding submodule '{name}' from {url}...")
-                    run_command(["git", "submodule", "add", url, name])
+                    run_command(["git", "submodule", "add", "--force", url, name])
                     
                     # Apply any saved patches if necessary
                     if has_changes and os.path.exists(f"{backup_dir}/local_changes.patch"):
@@ -162,14 +162,14 @@ def add_missing_submodules():
                         print(f"Could not move directory '{name}'. Skipping...")
                         continue
                     
-                    run_command(["git", "submodule", "add", url, name])
+                    run_command(["git", "submodule", "add", "--force", url, name])
                     
                     # Remove the temporary directory
                     safely_remove_directory(temp_dir)
             else:
                 # Directory doesn't exist, simply add the submodule
                 print(f"Adding submodule '{name}' from {url}...")
-                run_command(["git", "submodule", "add", url, name])
+                run_command(["git", "submodule", "add", "--force", url, name])
 
 def check_and_pull_submodules():
     """Check if submodules are initialized and pull if necessary"""
