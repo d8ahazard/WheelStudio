@@ -6,17 +6,17 @@ import argparse
 import shutil
 import time
 
-# Define the submodules with their URLs
+# Define the submodules with their URLs - EXACT MATCH to .gitmodules
 SUBMODULES = {
     "coqui-ai-TTS": "https://github.com/d8ahazard/coqui-ai-TTS.git",
-    "mamba": "https://github.com/d8ahazard/mamba.git",
     "causal-conv1d": "https://github.com/d8ahazard/causal-conv1d.git",
-    "fairseq": "https://github.com/d8ahazard/fairseq.git",
-    "stable-audio-tool": "https://github.com/d8ahazard/stable-audio-tools.git",
-    "versatile_audio_super_resolution": "https://github.com/d8ahazard/versatile_audio_super_resolution.git",
-    "openvoice-cli": "https://github.com/d8ahazard/openvoice-cli.git",
     "CLAP": "https://github.com/d8ahazard/CLAP.git",
     "dctorch": "https://github.com/d8ahazard/dctorch.git",
+    "fairseq": "https://github.com/d8ahazard/fairseq.git",
+    "mamba": "https://github.com/d8ahazard/mamba.git",
+    "openvoice-cli": "https://github.com/d8ahazard/openvoice-cli.git",
+    "stable-audio-tool": "https://github.com/d8ahazard/stable-audio-tool.git",
+    "versatile_audio_super_resolution": "https://github.com/d8ahazard/versatile_audio_super_resolution.git"
 }
 
 def run_command(cmd, cwd=None):
@@ -34,7 +34,7 @@ def check_submodule_exists(name):
     if os.path.exists(".gitmodules"):
         with open(".gitmodules", "r") as f:
             content = f.read()
-            return f'path = {name}' in content
+            return f'[submodule "{name}"]' in content
     return False
 
 def check_if_directory_exists(name):
@@ -185,6 +185,15 @@ def check_and_pull_submodules():
 
 def setup_submodules():
     """Setup all submodules - add, init, and update"""
+    # First make sure .gitmodules has correct entries
+    print("Ensuring .gitmodules contains correct entries...")
+    with open(".gitmodules", "w") as f:
+        for name, url in SUBMODULES.items():
+            f.write(f'[submodule "{name}"]\n')
+            f.write(f'\tpath = {name}\n')
+            f.write(f'\turl = {url}\n\n')
+    
+    # Now add the missing submodules
     add_missing_submodules()
     initialize_submodules()
 

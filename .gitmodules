@@ -1,35 +1,35 @@
 [submodule "coqui-ai-TTS"]
 	path = coqui-ai-TTS
-	url = https://github.com/d8ahazard/coqui-ai-TTS
+	url = https://github.com/d8ahazard/coqui-ai-TTS.git
 
 [submodule "causal-conv1d"]
 	path = causal-conv1d
-	url = https://github.com/d8ahazard/causal-conv1d
+	url = https://github.com/d8ahazard/causal-conv1d.git
 
 [submodule "CLAP"]
 	path = CLAP
-	url = https://github.com/d8ahazard/CLAP
+	url = https://github.com/d8ahazard/CLAP.git
 
 [submodule "dctorch"]
 	path = dctorch
-	url = https://github.com/d8ahazard/dctorch
+	url = https://github.com/d8ahazard/dctorch.git
 
 [submodule "fairseq"]
 	path = fairseq
-	url = https://github.com/d8ahazard/fairseq
+	url = https://github.com/d8ahazard/fairseq.git
 
 [submodule "mamba"]
 	path = mamba
-	url = https://github.com/d8ahazard/mamba
+	url = https://github.com/d8ahazard/mamba.git
 
 [submodule "openvoice-cli"]
 	path = openvoice-cli
-	url = https://github.com/d8ahazard/openvoice-cli
+	url = https://github.com/d8ahazard/openvoice-cli.git
 
 [submodule "stable-audio-tool"]
 	path = stable-audio-tool
-	url = https://github.com/d8ahazard/stable-audio-tools
+	url = https://github.com/d8ahazard/stable-audio-tool.git
 
 [submodule "versatile_audio_super_resolution"]
 	path = versatile_audio_super_resolution
-	url = https://github.com/d8ahazard/versatile_audio_super_resolution
+	url = https://github.com/d8ahazard/versatile_audio_super_resolution.git
