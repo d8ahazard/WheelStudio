@@ -1,6 +1,6 @@
 [submodule "coqui-ai-TTS_sub"]
 	path = coqui-ai-TTS
-	url = https://github.com/d8ahazard/coqui-ai-TTS.git
+	url = https://github.com/d8ahazard/coqui-ai-TTS
 
 [submodule "causal-conv1d"]
 	path = causal-conv1d
