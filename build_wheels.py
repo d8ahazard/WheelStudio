@@ -298,6 +298,16 @@ def build_wheel(project_path, project_name=None, no_isolation=True):
                         if line.strip():
                             arch_list.append(line.strip())
                     
+                    if len(arch_list) == 1:
+                        better_arches = []
+                        max_arch = float(arch_list[0])
+                        all_arches = ["12.0", "10.0", "9.0", "8.9", "8.7", "8.6", "8.0", "7.5"]
+                        for check_arch in all_arches:
+                            if float(check_arch) <= max_arch:
+                                better_arches.append(check_arch)
+                        if len(better_arches):
+                            arch_list = better_arches.reverse()
+                        
                     if arch_list:
                         # Just use the version numbers separated by semicolons
                         arch_string = ';'.join(arch_list)
@@ -306,11 +316,11 @@ def build_wheel(project_path, project_name=None, no_isolation=True):
                     else:
                         # Fallback to common architectures if detection fails
                         print("Could not detect specific CUDA architectures. Using common ones.")
-                        env["TORCH_CUDA_ARCH_LIST"] = "3.5;5.0;6.0;6.1;7.0;7.5;8.0;8.6"
+                        env["TORCH_CUDA_ARCH_LIST"] = "7.5;8.0;8.6"
                 except Exception as e:
                     print(f"Error detecting CUDA architectures: {e}")
                     print("Falling back to common CUDA architectures")
-                    env["TORCH_CUDA_ARCH_LIST"] = "3.5;5.0;6.0;6.1;7.0;7.5;8.0;8.6"
+                    env["TORCH_CUDA_ARCH_LIST"] = "7.5;8.0;8.6"
             else:
                 # On Windows and other platforms, using "all" works fine
                 env["TORCH_CUDA_ARCH_LIST"] = "all"
