@@ -1,6 +1,6 @@
 [submodule "coqui-ai-TTS"]
-	path = coqui-ai-TTS
-	url = https://github.com/d8ahazard/coqui-ai-TTS.git
+        path = coqui-ai-TTS
+        url = https://github.com/d8ahazard/coqui-ai-TTS.git
 
 [submodule "causal-conv1d"]
 	path = causal-conv1d
@@ -26,10 +26,10 @@
 	path = openvoice-cli
 	url = https://github.com/d8ahazard/openvoice-cli.git
 
-[submodule "stable-audio-tool"]
-	path = stable-audio-tool
-	url = https://github.com/d8ahazard/stable-audio-tool.git
-
 [submodule "versatile_audio_super_resolution"]
 	path = versatile_audio_super_resolution
 	url = https://github.com/d8ahazard/versatile_audio_super_resolution.git
+
+[submodule "stable-audio-tools"]
+	path = stable-audio-tools
+	url = https://github.com/d8ahazard/stable-audio-tools.git
