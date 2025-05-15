@@ -306,7 +306,8 @@ def build_wheel(project_path, project_name=None, no_isolation=True):
                             if float(check_arch) <= max_arch:
                                 better_arches.append(check_arch)
                         if len(better_arches):
-                            arch_list = better_arches.reverse()
+                            print(f"Found single architecture {arch_list[0]}, expanding to supported architectures: {better_arches}")
+                            arch_list = better_arches
                         
                     if arch_list:
                         # Just use the version numbers separated by semicolons
