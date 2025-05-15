@@ -1,0 +1,35 @@
+[submodule "coqui-ai-TTS_sub"]
+	path = coqui-ai-TTS
+	url = https://github.com/d8ahazard/coqui-ai-TTS.git
+
+[submodule "causal-conv1d"]
+	path = causal-conv1d
+	url = https://github.com/d8ahazard/causal-conv1d
+
+[submodule "CLAP"]
+	path = "CLAP"
+	url = https://github.com/d8ahazard/CLAP
+
+[submodule "dctorch"]
+	path = dctorch
+	url = https://github.com/d8ahazard/dctorch
+
+[submodule "fairseq"]
+	path = fairseq
+	url = https://github.com/d8ahazard/fairseq
+
+[submodule "mamba"]
+	path = mamba
+	url = https://github.com/d8ahazard/mamba
+
+[submodule "openvoice-cli"]
+	path = openvoice-cli
+	url = https://github.com/d8ahazard/openvoice-cli
+
+[submodule "stable-audio-tool"]
+	path = stable-audio-tool
+	url = https://github.com/d8ahazard/stable-audio-tool
+
+[submodule "versatile_audio_super_resolution"]
+	path = versatile_audio_super_resolution
+	url = https://github.com/d8ahazard/versatile_audio_super_resolution

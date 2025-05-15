@@ -361,7 +361,8 @@ def main():
         "fairseq",
         "causal-conv1d",  # Build causal-conv1d before mamba (dependency)
         "mamba",          # Requires causal-conv1d
-        "coqui-ai-TTS"
+        "coqui-ai-TTS",
+        "dctorch"
     ]
     
     # Filter to specific package if requested
