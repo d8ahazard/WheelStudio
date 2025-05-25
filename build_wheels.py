@@ -287,9 +287,9 @@ def build_wheel(project_path, project_name=None, no_isolation=True):
         # Get project version before building
         version = get_project_version(project_path, project_name)
         if version:
-            print(f"Building {project_name} version {version}")            
-            # Special handling for fairseq to ensure consistent version
+            print(f"Building {project_name} version {version}")
             
+        # Clean any previous builds
         dist_path = os.path.join(project_path, "dist")
         build_path = os.path.join(project_path, "build")
         egg_info_path = os.path.join(project_path, f"{project_name}.egg-info")
