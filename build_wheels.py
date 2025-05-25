@@ -287,19 +287,9 @@ def build_wheel(project_path, project_name=None, no_isolation=True):
         # Get project version before building
         version = get_project_version(project_path, project_name)
         if version:
-            print(f"Building {project_name} version {version}")
-            
+            print(f"Building {project_name} version {version}")            
             # Special handling for fairseq to ensure consistent version
-            if project_name == "fairseq" and version != "0.12.3":
-                print(f"Warning: Expected fairseq version 0.12.3 but found {version}")
-                print("Resetting fairseq to version 0.12.3...")
-                version_file = os.path.join(project_path, "fairseq", "version.txt")
-                if os.path.exists(version_file):
-                    with open(version_file, "w") as f:
-                        f.write("0.12.3")
-                    print("Updated fairseq version to 0.12.3")
-        
-        # Clean any previous builds
+            
         dist_path = os.path.join(project_path, "dist")
         build_path = os.path.join(project_path, "build")
         egg_info_path = os.path.join(project_path, f"{project_name}.egg-info")
@@ -463,27 +453,42 @@ def run_git_command(command, cwd=None):
 
 
 def ensure_fairseq_version(project_path):
-    """Ensure fairseq is at version 0.12.3 by checking out the correct commit."""
+    """Ensure fairseq is at version 0.13.0."""
     try:
-        # The commit hash for version 0.12.3
-        target_version = "0.12.3"
-        target_commit = "85f55b0c6e7a51e81d3684b325013961c22a24aa"  # This is the commit for v0.12.3
-        
+        target_version = "0.13.0"
         print(f"\nEnsuring fairseq is at version {target_version}")
-        
-        # Check if we're on the correct commit
-        current_commit = run_git_command(["rev-parse", "HEAD"], cwd=project_path).strip()
-        if current_commit == target_commit:
-            print(f"fairseq is already at version {target_version}")
-            return
-        
-        # Checkout the specific commit
-        print(f"Checking out fairseq version {target_version}")
-        run_git_command(["fetch", "--all"], cwd=project_path)
-        run_git_command(["checkout", target_commit], cwd=project_path)
         
         # Update version.txt
         version_file = os.path.join(project_path, "fairseq", "version.txt")
+        current_version = None
+        
+        if os.path.exists(version_file):
+            with open(version_file, "r") as f:
+                current_version = f.read().strip()
+        
+        if current_version == target_version:
+            print(f"fairseq is already at version {target_version}")
+            return
+            
+        # Update to the latest version
+        print(f"Updating fairseq to version {target_version}")
+        run_git_command(["fetch", "--all"], cwd=project_path)
+        
+        try:
+            # Try to checkout main/master branch
+            for branch in ["main", "master"]:
+                try:
+                    run_git_command(["checkout", branch], cwd=project_path)
+                    run_git_command(["pull", "origin", branch], cwd=project_path)
+                    break
+                except:
+                    continue
+        except Exception as e:
+            print(f"Warning: Could not update branch: {e}")
+            print("Continuing with current state...")
+        
+        # Ensure version.txt has the correct version
+        os.makedirs(os.path.dirname(version_file), exist_ok=True)
         with open(version_file, "w") as f:
             f.write(target_version)
         
