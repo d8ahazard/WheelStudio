@@ -236,14 +236,72 @@ def install_project_dependencies():
         print(f"Warning: Could not install cython: {e}")
 
 
+def get_project_version(project_path, project_name):
+    """Get the version of a project from its version file or setup configuration."""
+    version = None
+    
+    # Check version.txt first
+    version_file = os.path.join(project_path, "version.txt")
+    if os.path.exists(version_file):
+        with open(version_file, "r") as f:
+            version = f.read().strip()
+            print(f"Found version {version} in version.txt for {project_name}")
+            return version
+    
+    # Check setup.py
+    setup_py = os.path.join(project_path, "setup.py")
+    if os.path.exists(setup_py):
+        with open(setup_py, "r") as f:
+            content = f.read()
+            import re
+            # Look for version = "x.y.z" or version='x.y.z'
+            version_match = re.search(r'version\s*=\s*["\']([^"\']+)["\']', content)
+            if version_match:
+                version = version_match.group(1)
+                print(f"Found version {version} in setup.py for {project_name}")
+                return version
+    
+    # Check pyproject.toml
+    pyproject_toml = os.path.join(project_path, "pyproject.toml")
+    if os.path.exists(pyproject_toml):
+        with open(pyproject_toml, "r") as f:
+            content = f.read()
+            import re
+            # Look for version = "x.y.z" or version='x.y.z'
+            version_match = re.search(r'version\s*=\s*["\']([^"\']+)["\']', content)
+            if version_match:
+                version = version_match.group(1)
+                print(f"Found version {version} in pyproject.toml for {project_name}")
+                return version
+    
+    print(f"Warning: Could not determine version for {project_name}")
+    return None
+
+
 def build_wheel(project_path, project_name=None, no_isolation=True):
     """Build a wheel for the project."""
     try:
+        if not project_name:
+            project_name = os.path.basename(project_path)
+            
+        # Get project version before building
+        version = get_project_version(project_path, project_name)
+        if version:
+            print(f"Building {project_name} version {version}")
+            
+            # Special handling for fairseq to ensure consistent version
+            if project_name == "fairseq" and version != "0.12.3":
+                print(f"Warning: Expected fairseq version 0.12.3 but found {version}")
+                print("Resetting fairseq to version 0.12.3...")
+                version_file = os.path.join(project_path, "fairseq", "version.txt")
+                if os.path.exists(version_file):
+                    with open(version_file, "w") as f:
+                        f.write("0.12.3")
+                    print("Updated fairseq version to 0.12.3")
+        
         # Clean any previous builds
         dist_path = os.path.join(project_path, "dist")
         build_path = os.path.join(project_path, "build")
-        if not project_name:
-            project_name = os.path.basename(project_path)
         egg_info_path = os.path.join(project_path, f"{project_name}.egg-info")
         if os.path.exists(dist_path):
             shutil.rmtree(dist_path)
@@ -385,6 +443,112 @@ def parse_args():
     return parser.parse_args()
 
 
+def run_git_command(command, cwd=None):
+    """Run a git command and return the result."""
+    try:
+        full_command = ["git"] + command
+        result = subprocess.run(
+            full_command,
+            cwd=cwd,
+            check=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True
+        )
+        return result.stdout.strip()
+    except subprocess.CalledProcessError as e:
+        print(f"Git command failed: {' '.join(command)}")
+        print(f"Error: {e.stderr}")
+        raise
+
+
+def ensure_fairseq_version(project_path):
+    """Ensure fairseq is at version 0.12.3 by checking out the correct commit."""
+    try:
+        # The commit hash for version 0.12.3
+        target_version = "0.12.3"
+        target_commit = "85f55b0c6e7a51e81d3684b325013961c22a24aa"  # This is the commit for v0.12.3
+        
+        print(f"\nEnsuring fairseq is at version {target_version}")
+        
+        # Check if we're on the correct commit
+        current_commit = run_git_command(["rev-parse", "HEAD"], cwd=project_path).strip()
+        if current_commit == target_commit:
+            print(f"fairseq is already at version {target_version}")
+            return
+        
+        # Checkout the specific commit
+        print(f"Checking out fairseq version {target_version}")
+        run_git_command(["fetch", "--all"], cwd=project_path)
+        run_git_command(["checkout", target_commit], cwd=project_path)
+        
+        # Update version.txt
+        version_file = os.path.join(project_path, "fairseq", "version.txt")
+        with open(version_file, "w") as f:
+            f.write(target_version)
+        
+        print(f"Successfully set fairseq to version {target_version}")
+    except Exception as e:
+        print(f"Warning: Could not set fairseq version: {e}")
+        print("Continuing with current version...")
+
+
+def update_submodules(base_dir):
+    """Initialize and update all git submodules."""
+    print("\n===== Updating Git Submodules =====\n")
+    
+    try:
+        # Initialize submodules if not already done
+        print("Initializing submodules...")
+        run_git_command(["submodule", "init"], cwd=base_dir)
+        
+        # Update all submodules to their latest committed state
+        print("Updating submodules to latest committed state...")
+        run_git_command(["submodule", "update", "--recursive"], cwd=base_dir)
+        
+        # For each submodule, checkout the main branch and pull latest changes
+        submodules = run_git_command(["submodule", "status"], cwd=base_dir).split('\n')
+        for submodule in submodules:
+            if not submodule.strip():
+                continue
+            
+            # Parse submodule path from status
+            parts = submodule.strip().split()
+            if len(parts) >= 2:
+                submodule_path = os.path.join(base_dir, parts[1])
+                submodule_name = parts[1]
+                print(f"\nUpdating submodule: {submodule_name}")
+                
+                # Special handling for fairseq
+                if submodule_name == "fairseq":
+                    ensure_fairseq_version(submodule_path)
+                    continue
+                
+                # For other submodules, update to latest
+                try:
+                    # Get the default branch name
+                    default_branch = run_git_command(
+                        ["symbolic-ref", "--short", "refs/remotes/origin/HEAD"],
+                        cwd=submodule_path
+                    ).replace("origin/", "")
+                except:
+                    default_branch = "main"  # Fallback to main if can't determine
+                
+                try:
+                    # Checkout the default branch
+                    run_git_command(["checkout", default_branch], cwd=submodule_path)
+                    # Pull latest changes
+                    run_git_command(["pull", "origin", default_branch], cwd=submodule_path)
+                except Exception as e:
+                    print(f"Warning: Could not update {submodule_name} to latest: {e}")
+                    print("Continuing with current version...")
+        
+        print("\nSubmodules updated successfully!")
+    except Exception as e:
+        print(f"Error updating submodules: {e}")
+        print("Continuing with existing submodule states...")
+
+
 def main():
     # Parse arguments
     args = parse_args()
@@ -392,8 +556,10 @@ def main():
     # Define project directories
     base_dir = os.path.dirname(os.path.abspath(__file__))
     
-    # Define the build order - causal-conv1d must be built before mamba
+    # Update git submodules first
+    update_submodules(base_dir)
     
+    # Define the build order - causal-conv1d must be built before mamba
     all_projects = [
         "CLAP",  # This builds LAION-CLAP 1.1.5 (preferred version)
         "openvoice-cli",
